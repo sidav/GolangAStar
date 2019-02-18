@@ -4,6 +4,7 @@ import (
 	"GolangAStar/astar"
 	cw "TCellConsoleWrapper"
 	"strconv"
+	"time"
 )
 
 func main() {
@@ -14,16 +15,22 @@ func main() {
 		"..###..........",
 		"...............",
 		"...............",
+		"........#.#####",
 		"........#......",
 		"........#......",
-		"........#......",
-		"...............",
-		"...............",
+		"#######........",
+		".#.............",
 		"##############.",
 		"...............",
 		"....###########",
 		"....#....#.....",
-		" ####.##.#.#.#.",
+		".####.##.#.#.#.",
+		"..#...#..#.#.#.",
+		"#.###.#..#.#.#.",
+		"..#...#..#.#.#.",
+		".##.###..#.#.#.",
+		"..#...#..#.#.#.",
+		"#.###.#..#.#.#.",
 		"..#...#..#.#.#.",
 		"....#.#....#..X",
 	}
@@ -32,8 +39,10 @@ func main() {
 	fromx, fromy := 1, 1
 	tox, toy := len(mymap) - 1, len(mymap[0]) - 1
 	for key != "ESCAPE" {
-		path := astar.FindPath(costmap, fromx, fromy, tox, toy)
 		cw.SetFgColor(cw.BEIGE)
+		startTime := time.Now()
+		path := astar.FindPath(costmap, fromx, fromy, tox, toy)
+		cw.PutString("Time for pathfind: " + strconv.Itoa(int(time.Since(startTime) / time.Millisecond)) + "ms", 0, 21)
 		for x := 0; x < len(mymap); x++ {
 			for y := 0; y < len(mymap[0]); y++ {
 				cw.PutChar(rune(mymap[x][y]), x, y)
