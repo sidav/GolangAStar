@@ -19,6 +19,7 @@ func main() {
 		"........#......",
 		"...............",
 		"...............",
+		"##############.",
 		"...............",
 		"....###########",
 		"....#....#.....",
@@ -64,9 +65,10 @@ func main() {
 
 func getCostMapFromStringList(strmap *[]string) *[][]int {
 	width, height := len(*strmap), len((*strmap)[0])
-	costmap := make([][]int, height)
-	for i := range costmap {
-		costmap[i] = make([]int, width)
+	cw.PutString(strconv.Itoa(width) + "x" + strconv.Itoa(height), 0, 19)
+	costmap := make([][]int, width)
+	for j := range costmap {
+		costmap[j] = make([]int, height)
 	}
 	for i:=0; i<width; i++ {
 		for j:=0; j<height; j++ {
@@ -75,7 +77,7 @@ func getCostMapFromStringList(strmap *[]string) *[][]int {
 			}
 		}
 	}
-	cw.PutString(strconv.Itoa(len(costmap)) + " " + strconv.Itoa(len(costmap[0])), 0, 20)
+	cw.PutString(strconv.Itoa(len(costmap)) + "x" + strconv.Itoa(len(costmap[0])), 0, 20)
 	cw.Flush_console()
 	return &costmap
 }
