@@ -109,8 +109,8 @@ func main() {
 		}
 		cw.SetFgColor(cw.MAGENTA)
 		c := path
-		pathx, pathy := c.X, c.Y
 		for c != nil {
+			pathx, pathy := c.X, c.Y
 			cw.PutChar('*', pathx, pathy)
 			offx, offy := c.GetNextStepVector()
 			pathx += offx
