@@ -1,8 +1,8 @@
 package main
 
 import (
-	"GolangAStar/astar"
 	cw "TCellConsoleWrapper"
+	"astar/astar"
 	"strconv"
 	"time"
 )
@@ -108,8 +108,14 @@ func main() {
 			}
 		}
 		cw.SetFgColor(cw.MAGENTA)
-		for _, c := range *path {
-			cw.PutChar('*', c.X, c.Y)
+		c := path
+		pathx, pathy := c.X, c.Y
+		for c != nil {
+			cw.PutChar('*', pathx, pathy)
+			offx, offy := c.GetNextStepVector()
+			pathx += offx
+			pathy += offy
+			c = c.Child
 		}
 		cw.SetFgColor(cw.GREEN)
 		cw.PutChar('@', fromx, fromy)
