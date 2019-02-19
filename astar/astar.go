@@ -5,25 +5,29 @@ const (
 	STRAIGHT_COST = 10
 )
 
-type cell struct {
+type Cell struct {
 	X, Y            int
 	g, h            int
 	costToMoveThere int
-	parent          *cell
-	Child           *cell
+	parent          *Cell
+	Child           *Cell
 }
 
-func (c *cell) getF() int {
+func (c *Cell) getF() int {
 	return c.g + c.h
 }
 
-func (c *cell) setG(inc int) {
+func (c *Cell) GetCoords() (int, int) {
+	return c.X, c.Y
+}
+
+func (c *Cell) setG(inc int) {
 	if c.parent != nil {
 		c.g = c.parent.g + inc
 	}
 }
 
-func (c *cell) GetNextStepVector() (int, int) {
+func (c *Cell) GetNextStepVector() (int, int) {
 	var x, y int
 	if c.Child != nil {
 		x = c.Child.X - c.X
@@ -43,7 +47,7 @@ func manhattansHeuristic(fromx, fromy, tox, toy int) int {
 	return 10 * (abs(tox-fromx) + abs(toy-fromy))
 }
 
-func getIndexOfCellWithLowestF(openList []*cell) int {
+func getIndexOfCellWithLowestF(openList []*Cell) int {
 	cheapestCellIndex := 0
 	for i, c := range openList {
 		if c.getF() < openList[cheapestCellIndex].getF() {
@@ -53,8 +57,8 @@ func getIndexOfCellWithLowestF(openList []*cell) int {
 	return cheapestCellIndex
 }
 
-//func (c *cell) getPathToCell() *[]*cell {
-//	path := make([]*cell, 0)
+//func (c *Cell) getPathToCell() *[]*Cell {
+//	path := make([]*Cell, 0)
 //	curcell := c
 //	for curcell != nil {
 //		path = append(path, curcell)
@@ -63,8 +67,8 @@ func getIndexOfCellWithLowestF(openList []*cell) int {
 //	return &path
 //}
 
-func (c *cell) setChildsForPath() {
-	// path := make([]*cell, 0)
+func (c *Cell) setChildsForPath() {
+	// path := make([]*Cell, 0)
 	curcell := c
 	for curcell.parent != nil {
 		// path = append(path, curcell)
@@ -74,14 +78,14 @@ func (c *cell) setChildsForPath() {
 	return
 }
 
-func FindPath(costMap *[][]int, fromx, fromy, tox, toy int) *cell {
-	openList := make([]*cell, 0)
-	closedList := make([]*cell, 0)
-	var currentCell *cell
+func FindPath(costMap *[][]int, fromx, fromy, tox, toy int) *Cell {
+	openList := make([]*Cell, 0)
+	closedList := make([]*Cell, 0)
+	var currentCell *Cell
 	total_steps := 0
 	targetReached := false
 	// step 1
-	origin := &cell{X: fromx, Y: fromy, costToMoveThere: 0, h: manhattansHeuristic(fromx, fromy, tox, toy)}
+	origin := &Cell{X: fromx, Y: fromy, costToMoveThere: 0, h: manhattansHeuristic(fromx, fromy, tox, toy)}
 	openList = append(openList, origin)
 	// step 2
 	for !targetReached {
@@ -95,7 +99,9 @@ func FindPath(costMap *[][]int, fromx, fromy, tox, toy int) *cell {
 		analyzeNeighbors(currentCell, &openList, &closedList, costMap, tox, toy)
 		//sub-step 2d:
 		total_steps += 1
-		if getCellWithCoordsFromList(&openList, tox, toy) != nil {
+		targetInOpenList := getCellWithCoordsFromList(&openList, tox, toy)
+		if targetInOpenList != nil {
+			currentCell = targetInOpenList
 			currentCell.setChildsForPath()
 			return origin
 		}
@@ -106,7 +112,7 @@ func FindPath(costMap *[][]int, fromx, fromy, tox, toy int) *cell {
 	return nil
 }
 
-func analyzeNeighbors(curCell *cell, openlist *[]*cell, closedlist *[]*cell, costMap *[][]int, targetX, targetY int) {
+func analyzeNeighbors(curCell *Cell, openlist *[]*Cell, closedlist *[]*Cell, costMap *[][]int, targetX, targetY int) {
 	cost := 0
 	cx, cy := curCell.X, curCell.Y
 	for i := -1; i <= 1; i++ {
@@ -116,25 +122,24 @@ func analyzeNeighbors(curCell *cell, openlist *[]*cell, closedlist *[]*cell, cos
 			}
 			x, y := cx+i, cy+j
 			if areCoordsValidForCostMap(x, y, costMap) {
-				// TODO: maybe include target cell even if it is not passable?
-				if (*costMap)[x][y] == -1 || getCellWithCoordsFromList(closedlist, x, y) != nil { // cell is impassable or is in closed list
+				if (x != targetX && y != targetY) && ((*costMap)[x][y] == -1 || getCellWithCoordsFromList(closedlist, x, y) != nil) { // Cell is impassable or is in closed list
 					continue // ignore it
 				}
 				// TODO: add a flag for skipping diagonally lying cells
 				// TODO: add actual "cost to move there" from costMap
-				if (i * j) != 0 { // the cell under consideration is lying diagonally
+				if (i * j) != 0 { // the Cell under consideration is lying diagonally
 					cost = DIAGONAL_COST
 				} else {
 					cost = STRAIGHT_COST
 				}
 				curNeighbor := getCellWithCoordsFromList(openlist, x, y)
 				if curNeighbor != nil {
-					if curNeighbor.g > curCell.g + cost {
+					if curNeighbor.g > curCell.g+cost {
 						curNeighbor.parent = curCell
 						curNeighbor.setG(cost)
 					}
 				} else {
-					curNeighbor = &cell{X: x, Y: y, parent:curCell, h:manhattansHeuristic(x, y, targetX, targetY)}
+					curNeighbor = &Cell{X: x, Y: y, parent: curCell, h: manhattansHeuristic(x, y, targetX, targetY)}
 					curNeighbor.setG(cost)
 					*openlist = append(*openlist, curNeighbor)
 				}
@@ -143,7 +148,7 @@ func analyzeNeighbors(curCell *cell, openlist *[]*cell, closedlist *[]*cell, cos
 	}
 }
 
-func getCellWithCoordsFromList(list *[]*cell, x, y int) *cell {
+func getCellWithCoordsFromList(list *[]*Cell, x, y int) *Cell {
 	for _, c := range *list {
 		if c.X == x && c.Y == y {
 			return c
