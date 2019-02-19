@@ -100,7 +100,7 @@ func main() {
 	for key != "ESCAPE" {
 		cw.SetFgColor(cw.DARK_GRAY)
 		startTime := time.Now()
-		path := astar.FindPath(costmap, fromx, fromy, tox, toy, true)
+		path := astar.FindPath(costmap, fromx, fromy, tox, toy, true, true)
 		cw.PutString("Time for pathfind: " + strconv.Itoa(int(time.Since(startTime) / time.Millisecond)) + "ms", 0, 21)
 		for x := 0; x < len(mymap); x++ {
 			for y := 0; y < len(mymap[0]); y++ {

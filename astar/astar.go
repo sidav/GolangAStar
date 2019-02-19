@@ -4,7 +4,7 @@ const (
 	DIAGONAL_COST = 14
 	STRAIGHT_COST = 10
 	HEURISTIC_MULTIPLIER = 10
-	MAX_PATHFINDING_STEPS = 300 // increase in case of something wrong with pathfinding.
+	MAX_PATHFINDING_STEPS = 200 // increase in case of something wrong with pathfinding.
 )
 
 type Cell struct {
@@ -45,7 +45,10 @@ func abs(x int) int {
 	return x
 }
 
-func manhattansHeuristic(fromx, fromy, tox, toy int) int {
+func heuristicCost(fromx, fromy, tox, toy int, diagonalsAllowed bool) int {
+	if diagonalsAllowed {
+		return (fromx-tox)*(fromx-tox)+(fromy-toy)*(fromy-toy)
+	}
 	return HEURISTIC_MULTIPLIER * (abs(tox-fromx) + abs(toy-fromy))
 }
 
@@ -80,7 +83,7 @@ func (c *Cell) setChildsForPath() {
 	return
 }
 
-func FindPath(costMap *[][]int, fromx, fromy, tox, toy int, forceGetPath bool) *Cell {
+func FindPath(costMap *[][]int, fromx, fromy, tox, toy int, diagonalMoveAllowed, forceGetPath bool) *Cell {
 	openList := make([]*Cell, 0)
 	closedList := make([]*Cell, 0)
 	var currentCell *Cell
@@ -88,7 +91,7 @@ func FindPath(costMap *[][]int, fromx, fromy, tox, toy int, forceGetPath bool) *
 	targetReached := false
 
 	// step 1
-	origin := &Cell{X: fromx, Y: fromy, costToMoveThere: 0, h: manhattansHeuristic(fromx, fromy, tox, toy)}
+	origin := &Cell{X: fromx, Y: fromy, costToMoveThere: 0, h: heuristicCost(fromx, fromy, tox, toy, diagonalMoveAllowed)}
 	openList = append(openList, origin)
 	// step 2
 	for !targetReached {
@@ -99,7 +102,7 @@ func FindPath(costMap *[][]int, fromx, fromy, tox, toy int, forceGetPath bool) *
 		closedList = append(closedList, currentCell)
 		openList = append(openList[:currentCellIndex], openList[currentCellIndex+1:]...) // this friggin' magic removes currentCellIndex'th element from openList
 		//sub-step 2c:
-		analyzeNeighbors(currentCell, &openList, &closedList, costMap, tox, toy)
+		analyzeNeighbors(currentCell, &openList, &closedList, costMap, tox, toy, diagonalMoveAllowed)
 		//sub-step 2d:
 		total_steps += 1
 		targetInOpenList := getCellWithCoordsFromList(&openList, tox, toy)
@@ -121,7 +124,7 @@ func FindPath(costMap *[][]int, fromx, fromy, tox, toy int, forceGetPath bool) *
 	return nil
 }
 
-func analyzeNeighbors(curCell *Cell, openlist *[]*Cell, closedlist *[]*Cell, costMap *[][]int, targetX, targetY int) {
+func analyzeNeighbors(curCell *Cell, openlist *[]*Cell, closedlist *[]*Cell, costMap *[][]int, targetX, targetY int, diagAllowed bool) {
 	cost := 0
 	cx, cy := curCell.X, curCell.Y
 	for i := -1; i <= 1; i++ {
@@ -148,7 +151,7 @@ func analyzeNeighbors(curCell *Cell, openlist *[]*Cell, closedlist *[]*Cell, cos
 						curNeighbor.setG(cost)
 					}
 				} else {
-					curNeighbor = &Cell{X: x, Y: y, parent: curCell, h: manhattansHeuristic(x, y, targetX, targetY)}
+					curNeighbor = &Cell{X: x, Y: y, parent: curCell, h: heuristicCost(x, y, targetX, targetY, diagAllowed)}
 					curNeighbor.setG(cost)
 					*openlist = append(*openlist, curNeighbor)
 				}
