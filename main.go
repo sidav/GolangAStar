@@ -201,11 +201,12 @@ func main() {
 	fromx, fromy := 1, 1
 	autoMove := false
 	tox, toy := len(mymap) - 1, len(mymap[0]) - 1
+	// textYCoord := len(mymap)+1
 	for key != "ESCAPE" {
 		cw.SetFgColor(cw.DARK_GRAY)
 		startTime := time.Now()
 		path := astar.FindPath(costmap, fromx, fromy, tox, toy, true, true)
-		cw.PutString("Time for pathfind: " + strconv.Itoa(int(time.Since(startTime) / time.Millisecond)) + "ms", 0, 21)
+		timetofindpath := int(time.Since(startTime) / time.Millisecond)
 		for x := 0; x < len(mymap); x++ {
 			for y := 0; y < len(mymap[0]); y++ {
 				cw.PutChar(rune(mymap[x][y]), x, y)
@@ -221,6 +222,7 @@ func main() {
 			pathy += offy
 			c = c.Child
 		}
+		cw.PutString("Time for pathfind: " + strconv.Itoa(timetofindpath) + "ms", 0, 24)
 		cw.SetFgColor(cw.GREEN)
 		cw.PutChar('@', fromx, fromy)
 		cw.SetFgColor(cw.RED)
@@ -229,9 +231,9 @@ func main() {
 			offx, offy := path.GetNextStepVector()
 			fromx += offx
 			fromy += offy
-			cw.PutString("AUTOMOVE IS ON", 0, 23)
+			cw.PutString("AUTOMOVE IS ON", 0, 25)
 		} else {
-			cw.PutString("              ", 0, 23)
+			cw.PutString("              ", 0, 25)
 		}
 		cw.Flush_console()
 		time.Sleep(50 * time.Millisecond)
@@ -253,7 +255,7 @@ func main() {
 
 func getCostMapFromStringList(strmap *[]string) *[][]int {
 	width, height := len(*strmap), len((*strmap)[0])
-	cw.PutString(strconv.Itoa(width) + "x" + strconv.Itoa(height), 0, 22)
+	// cw.PutString(strconv.Itoa(width) + "x" + strconv.Itoa(height), 0, 22)
 	costmap := make([][]int, width)
 	for j := range costmap {
 		costmap[j] = make([]int, height)
@@ -265,8 +267,8 @@ func getCostMapFromStringList(strmap *[]string) *[][]int {
 			}
 		}
 	}
-	cw.PutString(strconv.Itoa(len(costmap)) + "x" + strconv.Itoa(len(costmap[0])), 0, 23)
-	cw.Flush_console()
+	//cw.PutString(strconv.Itoa(len(costmap)) + "x" + strconv.Itoa(len(costmap[0])), 0, 23)
+	//cw.Flush_console()
 	return &costmap
 }
 
