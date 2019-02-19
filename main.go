@@ -96,6 +96,7 @@ func main() {
 	costmap := getCostMapFromStringList(&mymap)
 	key := ""
 	fromx, fromy := 1, 1
+	autoMove := false
 	tox, toy := len(mymap) - 1, len(mymap[0]) - 1
 	for key != "ESCAPE" {
 		cw.SetFgColor(cw.DARK_GRAY)
@@ -121,8 +122,17 @@ func main() {
 		cw.PutChar('@', fromx, fromy)
 		cw.SetFgColor(cw.RED)
 		cw.PutChar('X', tox, toy)
+		if autoMove {
+			offx, offy := path.GetNextStepVector()
+			fromx += offx
+			fromy += offy
+			cw.PutString("AUTOMOVE IS ON", 0, 23)
+		} else {
+			cw.PutString("              ", 0, 23)
+		}
 		cw.Flush_console()
-		key = cw.ReadKey()
+		time.Sleep(50 * time.Millisecond)
+		key = cw.ReadKeyAsync()
 		switch key {
 		case "2":
 			fromy += 1
@@ -132,7 +142,8 @@ func main() {
 			fromy -= 1
 		case "6":
 			fromx += 1
-
+		case " ":
+			autoMove = !autoMove
 		}
 	}
 }
