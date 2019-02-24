@@ -4,7 +4,7 @@ const (
 	DIAGONAL_COST = 14
 	STRAIGHT_COST = 10
 	HEURISTIC_MULTIPLIER = 10
-	MAX_PATHFINDING_STEPS = 200 // increase in case of something wrong with pathfinding.
+	MAX_PATHFINDING_STEPS = 175 // Increase in case of stupid pathfinding. Decrease in case of lag.
 )
 
 type Cell struct {
@@ -134,7 +134,8 @@ func analyzeNeighbors(curCell *Cell, openlist *[]*Cell, closedlist *[]*Cell, cos
 			}
 			x, y := cx+i, cy+j
 			if areCoordsValidForCostMap(x, y, costMap) {
-				if (x != targetX || y != targetY) && ((*costMap)[x][y] == -1 || getCellWithCoordsFromList(closedlist, x, y) != nil) { // Cell is impassable or is in closed list
+				// if (x != targetX || y != targetY) &&
+				if (*costMap)[x][y] == -1 || getCellWithCoordsFromList(closedlist, x, y) != nil { // Cell is impassable or is in closed list
 					continue // ignore it
 				}
 				// TODO: add a flag for skipping diagonally lying cells
