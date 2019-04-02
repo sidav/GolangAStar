@@ -2,7 +2,7 @@ package main
 
 import (
 	cw "TCellConsoleWrapper"
-	"astar/astar"
+	astar "github.com/sidav/golibrl/astar"
 	"strconv"
 	"time"
 )
@@ -193,8 +193,8 @@ func main() {
 		"###.#######.#.#########.#",
 		"#.#.....#...#.#.........#",
 		"#.#.#.#.#.#.#.#.#########",
-		"#...#.#...#.....#........",
-		"########################.",
+		"#...#.#...#..............",
+		"#########################",
 	}
 	costmap := getCostMapFromStringList(&mymap)
 	key := ""
@@ -205,7 +205,7 @@ func main() {
 	for key != "ESCAPE" {
 		cw.SetFgColor(cw.DARK_GRAY)
 		startTime := time.Now()
-		path := astar.FindPath(costmap, fromx, fromy, tox, toy, true, true)
+		path := astar.FindPath(costmap, fromx, fromy, tox, toy, false, true, false)
 		timetofindpath := int(time.Since(startTime) / time.Millisecond)
 		for x := 0; x < len(mymap); x++ {
 			for y := 0; y < len(mymap[0]); y++ {
