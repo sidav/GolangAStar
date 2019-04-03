@@ -237,7 +237,7 @@ func main() {
 		}
 		cw.Flush_console()
 		time.Sleep(50 * time.Millisecond)
-		key = cw.ReadKeyAsync()
+		key = cw.ReadKey()
 		switch key {
 		case "2":
 			fromy += 1
@@ -247,6 +247,14 @@ func main() {
 			fromy -= 1
 		case "6":
 			fromx += 1
+		case "w":
+			toy -= 1
+		case "s":
+			toy += 1
+		case "a":
+			tox -= 1
+		case "d":
+			tox += 1
 		case " ":
 			autoMove = !autoMove
 		}
